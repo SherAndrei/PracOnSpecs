@@ -1,5 +1,6 @@
-#include <stdlib.h>
+#pragma once
 #include <pthread.h>
+#include <stdlib.h>
 #include "utils.h"
 
 struct Args {
