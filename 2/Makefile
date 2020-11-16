@@ -9,14 +9,17 @@ CFLAGS	= $(DEBUG) -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -
 LIBS	= -lpthread -lm
 LDFLAGS = $(DEBUG)
 
-OBJS = thread.o utils.o
+OBJS = main.o thread.o utils.o
 
 all : a.out
 
 a.out  : $(OBJS)
 	$(LD) $(LDFLAGS) $^ $(LIBS) -o $@
 
-thread.o : thread.c utils.h
+main.o : main.c thread.h
+	$(CC) $(CFLAGS) $< -o $@
+
+thread.o : thread.c thread.h
 	$(CC) $(CFLAGS) $< -o $@
 
 utils.o : utils.c utils.h
