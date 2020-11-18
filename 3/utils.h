@@ -1,9 +1,5 @@
 #pragma once
 #include <stdio.h>
 
-struct MeanInfo {
-    int length;
-    double sum;
-};
 
-int fill_mean_info(FILE* file, struct MeanInfo* p_mean);
+int find_mean(FILE* file, int* p_len, double* p_mean);

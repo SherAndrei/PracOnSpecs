@@ -7,8 +7,9 @@ struct Args {
     const char* filename;
     int k;
     int p;
-    struct MeanInfo info;
-    double result;
+    int length;
+    double mean;
+    int result;
     int error;
 };
 

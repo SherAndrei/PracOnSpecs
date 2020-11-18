@@ -18,14 +18,12 @@ void* thread_func(void* ptr) {
         cur->error = -1;
     }
     if (cur->error == 0 &&
-        fill_mean_info(file, &(cur->info)) < 0) {
+        find_mean(file, &(cur->length), &(cur->mean)) < 0) {
         printf("Error in file %s\n", cur->filename);
         cur->error = -2;
     }
-    if (cur->info.length != 0)
-        cur->result = cur->info.sum / cur->info.length;
-    LOG_INT(cur->info.length);
-    LOG_DBL(cur->info.sum);
+    // LOG_INT(cur->length);
+    // LOG_DBL(cur->mean);
     ////////////////////////////////////////////////
     pthread_mutex_lock(&m);
     if (first == 0) {
@@ -33,10 +31,11 @@ void* thread_func(void* ptr) {
     } else {
         if (cur->error != 0)
             first->error    = cur->error;
-        first->info.length += cur->info.length;
-        first->info.sum    += cur->info.sum;
-        if (first->info.length != 0)
-            first->result = first->info.sum / first->info.length;
+        if (first->length + cur->length != 0) {
+            first->mean = (first->mean * first->length + cur->mean * cur->length);
+            first->mean /= first->length + cur->length;
+        }
+        first->length += cur->length;
     }
     t_in++;
     if (t_in >= cur->p) {
@@ -48,7 +47,7 @@ void* thread_func(void* ptr) {
         }
     }
     if (cur != first) {
-        cur->result = first->result;
+        cur->mean   = first->mean;
         cur->error  = first->error;
     }
     t_out++;
@@ -63,7 +62,8 @@ void* thread_func(void* ptr) {
     }
     pthread_mutex_unlock(&m);
     ////////////////////////////////////////////////
-    if (cur->error == 0)
-        fclose(file);
+    if (cur->error != 0)
+        return 0;
+    fclose(file);
     return 0;
 }

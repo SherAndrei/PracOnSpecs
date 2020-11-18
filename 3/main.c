@@ -1,3 +1,5 @@
+// #define _GNU_SOURCE
+// #include <fenv.h>
 #include "thread.h"
 
 int main(int argc, const char* argv[]) {
@@ -5,7 +7,7 @@ int main(int argc, const char* argv[]) {
     int k;
     struct Args * a;
     pthread_t* tids;
-
+    // feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
     if (argc == 1) {
         printf("Usage: %s <files>\n", argv[0]);
         return -1;
@@ -24,9 +26,9 @@ int main(int argc, const char* argv[]) {
         a[k - 1].filename = argv[k];
         a[k - 1].k = k;
         a[k - 1].p = p;
-        a[k - 1].info.length = 0;
-        a[k - 1].info.sum    = 0.;
-        a[k - 1].result = 0.;
+        a[k - 1].length = 0;
+        a[k - 1].mean = 0.;
+        a[k - 1].result = 0;
         a[k - 1].error  = 0;
     }
     for (k = 1; k < p; k++) {
@@ -36,11 +38,8 @@ int main(int argc, const char* argv[]) {
     }
     thread_func(a + 0);
 
-    for (k = 1; k < p; k++) {
-        pthread_join(tids[k], 0);
-    }
     if (a[0].error == 0) {
-        printf("Result: %f\n", a[0].result);
+        printf("Result: %f\n", a[0].mean);
     } else {
         free(a);
         free(tids);

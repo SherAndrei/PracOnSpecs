@@ -1,6 +1,6 @@
 #include "utils.h"
 
-int fill_mean_info(FILE* file, struct MeanInfo* p_mean) {
+int find_mean(FILE* file, int* p_len, double *p_mean) {
     int length = 0;
     double sum = 0.;
     double current = 0.;
@@ -11,7 +11,8 @@ int fill_mean_info(FILE* file, struct MeanInfo* p_mean) {
     if (!feof(file)) {
         return -1;
     }
-    p_mean->length = length;
-    p_mean->sum = sum;
+    *p_len = length;
+    if (length != 0)
+        *p_mean = sum / length;
     return 0;
 }
