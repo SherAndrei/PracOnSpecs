@@ -32,7 +32,7 @@ void* thread_func(void* ptr) {
             first->error    = cur->error;
         if (first->all_len + cur->all_len != 0) {
             first->mean = (first->mean * first->all_len
-                           + cur->mean * cur->all_len) / first->all_len + cur->all_len;
+                           + cur->mean * cur->all_len) / (first->all_len + cur->all_len);
         }
         first->all_len += cur->all_len;
     }
