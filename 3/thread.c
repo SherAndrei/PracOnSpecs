@@ -48,18 +48,23 @@ void* thread_func(void* ptr) {
         cur->error   = first->error;
         cur->all_len = first->all_len;
     }
-    if (cur->error == 0 && cur->current->length == 0) {
-        for (iter = cur->current; iter >= cur->begin; iter--) {
-            if (iter->length != 0) {
-                // cur->current->is_decreasing = iter->is_decreasing;
-                // cur->current->last = iter->last;
-                cur->current = iter;
+    if (cur->error == 0 && cur->last != 0) {
+        if (cur->last->length == 0) {
+            for (iter = cur->last;
+                iter >= cur->begin && iter->length == 0;
+                iter--) {}
+
+            if (iter < cur->begin) {
+                cur->last = 0;
+            } else {
+                cur->last = iter;
             }
-        }
-        if (iter == cur->begin && iter->length == 0) {
-            cur->last = 0;
+        } else if (cur->current->length == 1 &&
+                   cur->last->length == 1) {
+            cur->current->is_increasing = cur->last->last < cur->current->last;
         }
     }
+
     t_out++;
     if (t_out >= cur->p) {
         t_in  = 0;
@@ -80,12 +85,12 @@ void* thread_func(void* ptr) {
     }
 
     rewind(file);
-    // LOG_DBL(cur->last->last);
     if (cur->current->length != 0 &&
         find_local_min(file, cur->last, cur->current, &(cur->result)) < 0) {
         printf("Error in file %s\n", cur->name);
         cur->current->error = cur->error = -2;
     }
+    // LOG_INT(cur->result);
     //////////////////////////////////////////
     pthread_mutex_lock(&m);
     if (first == 0) {

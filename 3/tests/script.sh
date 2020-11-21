@@ -7,6 +7,7 @@ function assert {
     if [ $# -ne 3 ] 
     then
         echo "Usage: [SEQUENCE] [RESULT] [EXPECTING]"
+        echo "Hint: if usage is correct try run it yourself, possible segfault"
     else 
         if [ $2 -ne $3 ] 
         then
@@ -53,7 +54,8 @@ function test1 {
 function test2 {
     assert "empty|empty" $($prog $tests/empty $tests/empty) 0
     assert "0|empty"     $($prog $tests/0 $tests/empty) 1
-    assert "empty|1"     $($prog $tests/empty $tests/1) 1
+    assert "empty|0"     $($prog $tests/empty $tests/0) 1
+    assert "1|empty"     $($prog $tests/1 $tests/empty) 1
     assert "0|0"     $($prog $tests/0 $tests/0) 2
     assert "0|1"     $($prog $tests/0 $tests/1) 1
     assert "1|0"     $($prog $tests/1 $tests/0) 1
@@ -118,7 +120,11 @@ function test3 {
     assert "00|11|22" $($prog $tests/00 $tests/11 $tests/22) 4
 }
 
-for mytest in test1 test2 test3
+function test4 {
+    assert "0|1|01|0" $($prog $tests/0 $tests/1 $tests/01 $tests/0) 3
+}
+
+for mytest in test1 test2 test3 test4
 do 
     echo "=========================== $mytest ==========================="
     $mytest
