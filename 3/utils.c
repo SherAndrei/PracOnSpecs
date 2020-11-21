@@ -28,7 +28,6 @@ int find_local_min(FILE* file, const struct FileInfo* last_info,
                                int* p_res) {
     int amount = 0;
     int is_first = 1;  // (last_info == 0);
-    int is_decreasing = 0;  // !is_first ? last_info->is_decreasing : 0;
     int is_constant   = 0;  // !is_first ? last_info->is_decreasing : 0;
     int is_increasing = 0;  // !is_first ? last_info->is_decreasing : 0;
     double last       = 0.;  // !is_first ? last_info->last          : 0.;
@@ -47,7 +46,6 @@ int find_local_min(FILE* file, const struct FileInfo* last_info,
         }
     }
 
-    (void) is_decreasing;
     (void) is_constant;
     (void) is_increasing;
 
@@ -55,24 +53,21 @@ int find_local_min(FILE* file, const struct FileInfo* last_info,
         if (last < current) {
             if (!is_increasing)
                 amount++;
-            is_decreasing = 0;
             is_constant   = 0;
             is_increasing = 1;
-        } else if (last > current) {
-            is_decreasing = 1;
-            is_constant   = 0;
-            is_increasing = 0;
-        } else {
+        } else if (fabs(last - current) < eps) {
             if (!is_increasing)
                 amount++;
-            is_decreasing = 0;
             is_constant   = 1;
+            is_increasing = 0;
+        } else {
+            is_constant   = 0;
             is_increasing = 0;
         }
         last = current;
     }
 
-    if (is_decreasing || is_constant)
+    if (!is_increasing)
         amount++;
 
     if (!feof(file))
