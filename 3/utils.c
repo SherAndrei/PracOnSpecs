@@ -10,7 +10,7 @@ int fill_info_and_mean(FILE* file, struct FileInfo* cur, double* p_mean) {
         return 0;
     }
     sum += last;
-    for (i = 1; fscanf(file, "%lf", &current) == 1; i++) {
+    for (i = 1; fscanf(file, "%lf", &current) == 1; ++i) {
         sum += current;
         is_increasing = (last < current);
         last = current;
@@ -21,7 +21,7 @@ int fill_info_and_mean(FILE* file, struct FileInfo* cur, double* p_mean) {
     if (!feof(file))
         return -1;
 
-    *p_mean            = sum / i;
+    *p_mean            = sum / ((double) i);
     cur->is_increasing = is_increasing;
     cur->last          = current;
     cur->length        = i;
@@ -46,7 +46,8 @@ int find_local_min_less_than_mean(FILE* file, const struct FileInfo* last_info,
 
     if (!is_first) {
         if (last_info->last > last &&
-           !last_info->is_increasing) {
+           !last_info->is_increasing &&
+           last_info->last < mean) {
             amount--;
         }
         is_increasing = last_info->last < last;
@@ -61,7 +62,7 @@ int find_local_min_less_than_mean(FILE* file, const struct FileInfo* last_info,
         last = current;
     }
 
-    if (!is_increasing && current < mean)
+    if (!is_increasing && last < mean)
         amount++;
 
     if (!feof(file))

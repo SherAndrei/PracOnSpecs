@@ -56,11 +56,7 @@ void* thread_func(void* ptr) {
                 iter >= cur->begin && iter->length == 0;
                 iter--) {}
 
-            if (iter < cur->begin) {
-                cur->last = 0;
-            } else {
-                cur->last = iter;
-            }
+            cur->last = (iter >= cur->begin) ? iter : 0;
         } else if (cur->current->length == 1 &&
                    cur->last->length == 1) {
             cur->current->is_increasing = cur->last->last < cur->current->last;
