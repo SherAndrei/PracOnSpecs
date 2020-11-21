@@ -34,7 +34,7 @@ int main(int argc, const char* argv[]) {
         files[k].last     = 0.;
         files[k].length   = 0;
         files[k].error    = 0;
-        files[k].is_decreasing = 0;
+        files[k].is_increasing = 0;
         a[k].begin   = files + 0;
         a[k].last    = (k != 0) ? files + k - 1 : 0;
         a[k].current = files + k;

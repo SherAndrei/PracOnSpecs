@@ -80,6 +80,7 @@ void* thread_func(void* ptr) {
     }
 
     rewind(file);
+    // LOG_DBL(cur->last->last);
     if (cur->current->length != 0 &&
         find_local_min(file, cur->last, cur->current, &(cur->result)) < 0) {
         printf("Error in file %s\n", cur->name);
