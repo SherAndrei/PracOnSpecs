@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include "thread.h"
 
-#define LOG_INT(x) printf("%s: %d\n", #x, x)
-#define LOG_DBL(x) printf("%s: %f\n", #x, x)
-
 void* thread_func(void* ptr) {
     static pthread_mutex_t m     = PTHREAD_MUTEX_INITIALIZER;
     static pthread_cond_t c_in   = PTHREAD_COND_INITIALIZER;
@@ -21,7 +18,7 @@ void* thread_func(void* ptr) {
         cur->current->error = cur->error = -1;
     }
     if (cur->error == 0 &&
-        fill_info(file, cur->current) < 0) {
+        fill_info_and_mean(file, cur->current, &(cur->mean)) < 0) {
         printf("Error in file %s\n", cur->name);
         cur->current->error = cur->error = -2;
     }
@@ -33,6 +30,10 @@ void* thread_func(void* ptr) {
     } else {
         if (cur->error != 0)
             first->error    = cur->error;
+        if (first->all_len + cur->all_len != 0) {
+            first->mean = (first->mean * first->all_len
+                           + cur->mean * cur->all_len) / first->all_len + cur->all_len;
+        }
         first->all_len += cur->all_len;
     }
     t_in++;
@@ -46,6 +47,7 @@ void* thread_func(void* ptr) {
     }
     if (cur != first) {
         cur->error   = first->error;
+        cur->mean    = first->mean;
         cur->all_len = first->all_len;
     }
     if (cur->error == 0 && cur->last != 0) {
@@ -64,7 +66,6 @@ void* thread_func(void* ptr) {
             cur->current->is_increasing = cur->last->last < cur->current->last;
         }
     }
-
     t_out++;
     if (t_out >= cur->p) {
         t_in  = 0;
@@ -86,11 +87,10 @@ void* thread_func(void* ptr) {
 
     rewind(file);
     if (cur->current->length != 0 &&
-        find_local_min(file, cur->last, cur->current, &(cur->result)) < 0) {
+        find_local_min_less_than_mean(file, cur->last, &(cur->result), cur->mean) < 0) {
         printf("Error in file %s\n", cur->name);
         cur->current->error = cur->error = -2;
     }
-    // LOG_INT(cur->result);
     //////////////////////////////////////////
     pthread_mutex_lock(&m);
     if (first == 0) {

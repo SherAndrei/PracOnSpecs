@@ -1,6 +1,6 @@
 #!/bin/bash
 prog="./a.out"
-tests="./tests"
+tests="./test_min"
 exec 1> result.txt
 
 function assert {
@@ -121,10 +121,45 @@ function test3 {
 }
 
 function test4 {
-    assert "0|1|01|0" $($prog $tests/0 $tests/1 $tests/01 $tests/0) 3
+    assert "empty|empty|empty|empty" $($prog $tests/empty $tests/empty $tests/empty $tests/empty) 0
+    assert "empty|empty|0|empty"     $($prog $tests/empty $tests/empty $tests/0 $tests/empty) 1
+    assert "empty|empty|1|empty"     $($prog $tests/empty $tests/empty $tests/1 $tests/empty) 1
+    assert "0|empty|0|empty"     $($prog $tests/0 $tests/empty $tests/0 $tests/empty) 2
+    assert "empty|0|empty|1"     $($prog $tests/empty $tests/0 $tests/empty $tests/1) 1
+    assert "empty|1|0|empty"     $($prog $tests/empty $tests/1 $tests/0 $tests/empty) 1
+    assert "1|empty|empty|1"     $($prog $tests/1 $tests/empty $tests/empty $tests/1) 2
+    assert "0|empty|0|0"    $($prog $tests/0 $tests/empty $tests/0 $tests/0) 3
+    assert "0|0|empty|1"    $($prog $tests/0 $tests/0 $tests/empty $tests/1) 2
+    assert "0|1|0|empty"    $($prog $tests/0 $tests/1 $tests/0 $tests/empty) 2
+    assert "empty|0|1|1"    $($prog $tests/empty $tests/0 $tests/1 $tests/1) 2
+    assert "1|0|0|empty"    $($prog $tests/1 $tests/0 $tests/0 $tests/empty) 2
+    assert "1|empty|0|1"    $($prog $tests/1 $tests/empty $tests/0 $tests/1) 1
+    assert "empty|1|1|0"    $($prog $tests/empty $tests/1 $tests/1 $tests/0) 2
+    assert "empty|1|1|1"    $($prog $tests/empty $tests/1 $tests/1 $tests/1) 3
+    assert "2|empty|1|0"    $($prog $tests/2 $tests/empty $tests/1 $tests/0) 1
+    assert "0|1|empty|2"    $($prog $tests/0 $tests/1 $tests/empty $tests/2) 1
+    assert "0|0|0|0"   $($prog $tests/0 $tests/0 $tests/0 $tests/0) 4
+    assert "0|0|0|1"   $($prog $tests/0 $tests/0 $tests/0 $tests/1) 3
+    assert "0|0|1|0"   $($prog $tests/0 $tests/0 $tests/1 $tests/0) 3
+    assert "0|1|0|0"   $($prog $tests/0 $tests/1 $tests/0 $tests/0) 3
+    assert "0|1|0|1"   $($prog $tests/0 $tests/1 $tests/0 $tests/1) 2
+    assert "0|1|1|0"   $($prog $tests/0 $tests/1 $tests/1 $tests/0) 2
+    assert "0|0|1|1"   $($prog $tests/0 $tests/0 $tests/1 $tests/1) 3
+    assert "0|1|1|1"   $($prog $tests/0 $tests/1 $tests/1 $tests/1) 3
+    assert "0|1|1|0"   $($prog $tests/0 $tests/1 $tests/1 $tests/0) 2
+    assert "1|0|0|1"   $($prog $tests/1 $tests/0 $tests/0 $tests/1) 2
+    assert "1|1|1|1"   $($prog $tests/1 $tests/1 $tests/1 $tests/1) 4
+    assert "1|0|10|1"  $($prog $tests/1 $tests/0 $tests/10 $tests/1) 2
+    assert "0|1|0|10"  $($prog $tests/0 $tests/1 $tests/0 $tests/10) 3
+    assert "0|0|11|22" $($prog $tests/0 $tests/0 $tests/11 $tests/22) 4
+    assert "0|0|1|1|2|2" $($prog $tests/0 $tests/0 $tests/1 $tests/1 $tests/2 $tests/2) 4
 }
 
-for mytest in test1 test2 test3 test4
+function test5 {
+    assert "201|001" $($prog $tests/201 $tests/001) 3 
+}
+
+for mytest in test1 test2 test3 test4 test5
 do 
     echo "=========================== $mytest ==========================="
     $mytest

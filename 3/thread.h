@@ -1,7 +1,6 @@
 #pragma once
 #include <pthread.h>
 #include "utils.h"
-#include "fileinfo.h"
 
 struct Args {
     const char* name;
@@ -10,6 +9,7 @@ struct Args {
     struct FileInfo* begin;
     struct FileInfo* last;
     struct FileInfo* current;
+    double mean;
     int all_len;
     int result;
     int error;

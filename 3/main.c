@@ -1,5 +1,5 @@
-// #define _GNU_SOURCE
-// #include <fenv.h>
+#define _GNU_SOURCE
+#include <fenv.h>
 #include <stdlib.h>
 #include "thread.h"
 
@@ -12,7 +12,7 @@ int main(int argc, const char* argv[]) {
     struct Args * a;
     pthread_t* tids;
     struct FileInfo * files;
-    // feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+    feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
     if (argc == 1) {
         printf("Usage: %s <files>\n", argv[0]);
         return -1;
@@ -31,6 +31,7 @@ int main(int argc, const char* argv[]) {
         a[k].k = k + 1;
         a[k].p = p;
         a[k].name = argv[k + 1];
+        a[k].mean = 0.;
         files[k].last     = 0.;
         files[k].length   = 0;
         files[k].error    = 0;
@@ -54,13 +55,6 @@ int main(int argc, const char* argv[]) {
     }
 
     if (a[0].error == 0) {
-        // for (k = 0; k < p; k++) {
-        //     printf("####### %s #######\n", a[k].name);
-        //     LOG_INT(files[k].length);
-        //     LOG_INT(files[k].is_decreasing);
-        //     LOG_DBL(files[k].last);
-        // }
-        // putchar('\n');
         printf("%d\n", a[0].result);
     } else {
         free(files);

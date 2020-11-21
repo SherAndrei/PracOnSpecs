@@ -1,31 +1,40 @@
 #include "utils.h"
 
-int find_mean(FILE* file, int* p_len, double *p_mean) {
-    int length = 0;
+int fill_info_and_mean(FILE* file, struct FileInfo* cur, double* p_mean) {
+    double last, current;
     double sum = 0.;
-    double current = 0.;
-    while (fscanf(file, "%lf", &current) == 1) {
+    int i = 0, is_increasing = 0;
+    if (fscanf(file, "%lf", &last) != 1) {
+        if (!feof(file))
+            return -1;
+        return 0;
+    }
+    sum += last;
+    for (i = 1; fscanf(file, "%lf", &current) == 1; i++) {
         sum += current;
-        length++;
+        is_increasing = (last < current);
+        last = current;
     }
-    if (!feof(file)) {
+    if (i == 1) {
+        current = last;
+    }
+    if (!feof(file))
         return -1;
-    }
-    *p_len = length;
-    if (length != 0)
-        *p_mean = sum / length;
 
-    rewind(file);
+    *p_mean            = sum / i;
+    cur->is_increasing = is_increasing;
+    cur->last          = current;
+    cur->length        = i;
     return 0;
 }
 
-int find_local_min(FILE* file, const struct FileInfo* last_info,
-                               const struct FileInfo* curr_info,
-                               int* p_res) {
+
+int find_local_min_less_than_mean(FILE* file, const struct FileInfo* last_info,
+                               int* p_res, double mean) {
     int amount = 0;
     int is_first = (last_info == 0);
-    int is_increasing = 0;   // !is_first ? last_info->is_increasing : 0;
-    double last       = 0.;  // !is_first ? last_info->last          : 0.;
+    int is_increasing = 0;
+    double last       = 0.;
     double current = 0.;
 
     if (fscanf(file, "%lf", &last) != 1) {
@@ -34,7 +43,6 @@ int find_local_min(FILE* file, const struct FileInfo* last_info,
         *p_res = 0;
         return 0;
     }
-    (void) curr_info;
 
     if (!is_first) {
         if (last_info->last > last &&
@@ -46,14 +54,14 @@ int find_local_min(FILE* file, const struct FileInfo* last_info,
 
     while (fscanf(file, "%lf", &current) == 1) {
         if (last <= current) {
-            if (!is_increasing)
+            if (!is_increasing && last < mean)
                 amount++;
         }
         is_increasing = last < current;
         last = current;
     }
 
-    if (!is_increasing)
+    if (!is_increasing && current < mean)
         amount++;
 
     if (!feof(file))
