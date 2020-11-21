@@ -1,24 +1,18 @@
 #pragma once
 #include <pthread.h>
-#include <stdlib.h>
 #include "utils.h"
-
-struct FileInfo {
-    const char* name;
-    double first;
-    double last;
-    int length;
-    int error;
-};
+#include "fileinfo.h"
 
 struct Args {
+    const char* name;
     int k;
     int p;
-    struct FileInfo* info;
+    struct FileInfo* begin;
+    struct FileInfo* last;
+    struct FileInfo* current;
     int all_len;
     int result;
     int error;
 };
 
 void* thread_func(void* ptr);
-

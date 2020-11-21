@@ -1,6 +1,10 @@
 // #define _GNU_SOURCE
 // #include <fenv.h>
+#include <stdlib.h>
 #include "thread.h"
+
+#define LOG_INT(x) printf("%s: %d\n", #x, x)
+#define LOG_DBL(x) printf("%s: %f\n", #x, x)
 
 int main(int argc, const char* argv[]) {
     const int p = argc - 1;
@@ -26,12 +30,14 @@ int main(int argc, const char* argv[]) {
     for (k = 0; k < p; k++) {
         a[k].k = k + 1;
         a[k].p = p;
-        files[k].name = argv[k + 1];
-        files[k].first    = 0.;
+        a[k].name = argv[k + 1];
         files[k].last     = 0.;
         files[k].length   = 0;
         files[k].error    = 0;
-        a[k].info = files + k;
+        files[k].is_decreasing = 0;
+        a[k].begin   = files + 0;
+        a[k].last    = (k != 0) ? files + k - 1 : 0;
+        a[k].current = files + k;
         a[k].all_len = 0;
         a[k].result = 0;
         a[k].error  = 0;
@@ -48,11 +54,14 @@ int main(int argc, const char* argv[]) {
     }
 
     if (a[0].error == 0) {
-        for (k = 0; k < p; k++) {
-            if (files[k].length > 0)
-                printf(" %f %f", files[k].first, files[k].last);
-        }
-        putchar('\n');
+        // for (k = 0; k < p; k++) {
+        //     printf("####### %s #######\n", a[k].name);
+        //     LOG_INT(files[k].length);
+        //     LOG_INT(files[k].is_decreasing);
+        //     LOG_DBL(files[k].last);
+        // }
+        // putchar('\n');
+        printf("%d\n", a[0].result);
     } else {
         free(files);
         free(a);
