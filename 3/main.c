@@ -1,10 +1,5 @@
-#define _GNU_SOURCE
-#include <fenv.h>
 #include <stdlib.h>
 #include "thread.h"
-
-#define LOG_INT(x) printf("%s: %d\n", #x, x)
-#define LOG_DBL(x) printf("%s: %f\n", #x, x)
 
 int main(int argc, const char* argv[]) {
     const int p = argc - 1;
@@ -12,7 +7,6 @@ int main(int argc, const char* argv[]) {
     struct Args * a;
     pthread_t* tids;
     struct FileInfo * files;
-    feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
     if (argc == 1) {
         printf("Usage: %s <files>\n", argv[0]);
         return -1;
@@ -34,7 +28,6 @@ int main(int argc, const char* argv[]) {
         a[k].mean = 0.;
         files[k].last     = 0.;
         files[k].length   = 0;
-        files[k].error    = 0;
         files[k].is_increasing = 0;
         a[k].begin   = files + 0;
         a[k].last    = (k != 0) ? files + k - 1 : 0;

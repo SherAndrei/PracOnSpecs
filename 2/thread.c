@@ -19,17 +19,18 @@ void* thread_func(void * ptr) {
         printf("Incorrect data in file %s\n", cur->filename);
         cur->error = -2;
         fclose(file);
+        file = 0;
     }
     //////////////////////////////////////////////
     pthread_mutex_lock(&m);
     if (first == 0) {
         first = cur;
     } else {
-        // сохраняем результат в первый
         if (cur->error != 0) {
            first->error = cur->error;
         } else if (first->info.length < cur->info.length ||
-                  ((first->info.length == cur->info.length) && (first->info.max_const < cur->info.max_const))) {
+                  ((first->info.length == cur->info.length) &&
+                   (first->info.max_const < cur->info.max_const))) {
            first->info.length    = cur->info.length;
            first->info.max_const = cur->info.max_const;
         }
@@ -44,7 +45,6 @@ void* thread_func(void * ptr) {
         }
     }
     if (first != cur) {
-        // копируем результаты из первого
         cur->info  = first->info;
         cur->error = first->error;
     }
@@ -60,14 +60,18 @@ void* thread_func(void * ptr) {
     }
     pthread_mutex_unlock(&m);
     //////////////////////////////////////////////
-    if (cur->error == 0) {
-        rewind(file);
-        if (cur->info.length > 0 &&
-            find_values_greater_than_max_const(file, cur->info.max_const, &(cur->result)) < 0) {
-            printf("Incorrect data in file %s\n", cur->filename);
-            cur->error = -2;
+    if (cur->error != 0) {
+        if (file != 0) {
             fclose(file);
         }
+        return 0;
+    }
+
+    rewind(file);
+    if (cur->info.length > 0 &&
+        find_values_greater_than_max_const(file, cur->info.max_const, &(cur->result)) < 0) {
+        printf("Incorrect data in file %s\n", cur->filename);
+        cur->error = -2;
     }
     //////////////////////////////////////////////
     pthread_mutex_lock(&m);
@@ -100,8 +104,7 @@ void* thread_func(void * ptr) {
     }
     pthread_mutex_unlock(&m);
     //////////////////////////////////////////////
-    if (cur->error == 0)
-        fclose(file);
+    fclose(file);
     return 0;
 }
 

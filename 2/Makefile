@@ -5,7 +5,7 @@ CFLAGS	= $(DEBUG) -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -
 		  -Werror -pedantic -pedantic-errors -Wfloat-equal -Wpointer-arith -Wformat-security \
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
 		  -Wcast-qual -Wno-suggest-attribute=format -Wpedantic -Werror=declaration-after-statement \
-		  -Wmissing-declarations
+		  -Wmissing-declarations -O3
 LIBS	= -lpthread -lm
 LDFLAGS = $(DEBUG)
 

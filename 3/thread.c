@@ -15,12 +15,14 @@ void* thread_func(void* ptr) {
 
     if (!file) {
         printf("Cannot open file %s\n", cur->name);
-        cur->current->error = cur->error = -1;
+        cur->error = -1;
     }
     if (cur->error == 0 &&
         fill_info_and_mean(file, cur->current, &(cur->mean)) < 0) {
         printf("Error in file %s\n", cur->name);
-        cur->current->error = cur->error = -2;
+        cur->error = -2;
+        fclose(file);
+        file = 0;
     }
     cur->all_len = cur->current->length;
     ////////////////////////////////////////////////
@@ -76,7 +78,7 @@ void* thread_func(void* ptr) {
     ////////////////////////////////////////////////
 
     if (cur->error < 0) {
-        if (cur->current->error != -1)
+        if (file != 0)
             fclose(file);
         return 0;
     }
@@ -85,7 +87,7 @@ void* thread_func(void* ptr) {
     if (cur->current->length != 0 &&
         find_local_min_less_than_mean(file, cur->last, &(cur->result), cur->mean) < 0) {
         printf("Error in file %s\n", cur->name);
-        cur->current->error = cur->error = -2;
+        cur->error = -2;
     }
     //////////////////////////////////////////
     pthread_mutex_lock(&m);
