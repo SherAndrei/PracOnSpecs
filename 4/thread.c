@@ -26,35 +26,37 @@ void* thread_func(void* ptr) {
     static struct Args * first = 0;
 
     struct Args * arg   = (struct Args*)ptr;
-    struct Range  arg_r = arg->range;
-    int length    = arg_r.end - arg_r.begin;
-    double* array = arg_r.begin;
-    // int next_length = 0;
+    double* begin  = arg->array.begin;
+    int length = arg->array.length;
+    int other_length = 0;
     double prevprev = 0.,
-           prev = 0.;
-        //    next = 0.,
-        //    nextnext = 0.;
+           prev = 0.,
+           next = 0.,
+           nextnext = 0.;
     int k = arg->k;
-    int i;
+    int p = arg->p;
+    int i = 0;
     thread_time = get_time();
 
     ////////////////////////////////////////////////
     pthread_mutex_lock(&m);
     if (k == 0) {
         if (length > 1) {
-            prevprev = array[0];
-            prev     = array[1];
+            prevprev = begin[0];
+            prev     = begin[1];
         }
     } else {
+        other_length = arg->prev->array.length;
         if (length > 1) {
-            prevprev = *(arg->prev->range.end - 2);
-            prev     = *(arg->prev->range.end - 1);
+            prevprev = arg->prev->array.begin[other_length - 2];
+            prev     = arg->prev->array.begin[other_length - 1];
         } else if (length == 1) {
             if (k > 1)
-                prevprev = *(arg->prev->prev->range.end - 1);
-            prev     = *(arg->prev->range.end - 1);
+                prevprev = arg->prev->prev->array.begin[other_length - 1];
+            prev     = arg->prev->array.begin[other_length - 1];
         }
     }
+
     t_in++;
     if (t_in >= arg->p) {
         t_out = 0;
@@ -80,13 +82,12 @@ void* thread_func(void* ptr) {
     if (length != 1) {
         i = (k != 0) ? 0 : 2;
         for (; i < length; i++) {
-            evaluate_left(&prevprev, &prev, array + i);
-            // evaluate(&prevprev, &prev, array + k, array + k + 2);
+            evaluate_left(&prevprev, &prev, begin + i);
         }
         i = (k != 0) ? i : i - 2;
     } else {
         if (k > 1)
-            evaluate_left(&prevprev, &prev, array + 0);
+            evaluate_left(&prevprev, &prev, begin + 0);
         i = (k > 1);
     }
     arg->result += i;

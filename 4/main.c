@@ -4,49 +4,41 @@
 #include "thread.h"
 
 int main(int argc, const char* argv[]) {
-    int p, n, k, length;
-    double* array;
+    int p, k, length;
+    struct Array main;
     double fulltime;
     struct Args * a;
     pthread_t* tids;
-    // struct Range* ranges;
     if (!((argc == 3 || argc == 4) &&
-        (sscanf(argv[1], "%d", &n) == 1) &&
+        (sscanf(argv[1], "%d", &main.length) == 1) &&
         (sscanf(argv[2], "%d", &p) == 1) &&
-        n > 0 && p > 0)) {
+        main.length > 0 && p > 0)) {
         printf("Usage: %s <n> <p> [filename]\n", argv[0]);
         return -1;
     }
-    if (n < p)
-        p = n;
-    length = n / p;
+    if (main.length < p)
+        p = main.length;
+    length = main.length / p;
 
-    array  = (double*)      malloc(n *sizeof(double));
+    main.begin = (double*)  malloc(main.length *sizeof(double));
     a      = (struct Args*) malloc(sizeof(struct Args) * p);
-    // ranges = (struct Range*)malloc(sizeof(struct Range) * p);
     tids   = (pthread_t*)   malloc(sizeof(pthread_t) * p);
-    if (!array || !a || !tids) {
-    // || !ranges) {
-        free(array), free(a), free(tids);
-        //  free(ranges);
+    if (!main.begin || !a || !tids) {
+        free(main.begin), free(a), free(tids);
         printf("Cannot allocate memory\n");
         return -1;
     }
 
-    if (fill_array(array, n, (argc == 4 ? argv[3] : NULL)) < 0) {
-        free(array), free(a), free(tids);
-        // free(ranges);
+    if (fill_array(main, (argc == 4 ? argv[3] : NULL)) < 0) {
+        free(main.begin), free(a), free(tids);
         return -2;
     }
     printf("Original =");
-    print_array(array, n);
-
+    print_array(main);
     for (k = 0; k < p; k++) {
-        // ranges[k].begin = array + k * length;
-        // ranges[k].end   = array + ((k != p - 1) ? (k + 1) * length : n);
         a[k].prev        = a + k - 1;
-        a[k].range.begin = array + k * length;
-        a[k].range.end   = array + ((k != p - 1) ? (k + 1) * length : n);
+        a[k].array.begin  = main.begin + k * length;
+        a[k].array.length = ((k != p - 1) ? length : (main.length - length * (p - 1)));
         a[k].next        = a + k + 1;
         a[k].k      = k;
         a[k].p      = p;
@@ -72,7 +64,7 @@ int main(int argc, const char* argv[]) {
     fulltime = get_full_time() - fulltime;
 
     printf("Result   =");
-    print_array(array, n);
+    print_array(main);
     printf("Answer: %d\n", a[0].result);
     printf("####################\n");
     printf("Full time: %.4f\n", fulltime);
@@ -81,7 +73,6 @@ int main(int argc, const char* argv[]) {
         printf("%d thread took %.4f\n", k + 1, a[k].time);
         printf("--------------------\n");
     }
-    free(array), free(a), free(tids);
-    // free(ranges);
+    free(main.begin), free(a), free(tids);
     return 0;
 }

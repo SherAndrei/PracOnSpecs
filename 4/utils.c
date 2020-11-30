@@ -8,17 +8,17 @@
 #define PRINT_VALUE 20
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-void formula(double* array, int size) {
+void formula(struct Array array) {
     int i;
-    for (i = 0; i < size; i++) {
-        array[i] = i;
+    for (i = 0; i < array.length; i++) {
+        array.begin[i] = i;
     }
 }
 
-int fill_array(double* array, int size, const char* filename) {
+int fill_array(struct Array array, const char* filename) {
     int i;
     if (!filename) {
-        formula(array, size);
+        formula(array);
     } else {
         FILE* file = fopen(filename, "r");
         if (!file) {
@@ -26,9 +26,9 @@ int fill_array(double* array, int size, const char* filename) {
             return -1;
         }
         for (i = 0;
-             i < size && fscanf(file, "%lf", &(array[i])) == 1;
+             i < array.length && fscanf(file, "%lf", &(array.begin[i])) == 1;
              i++) {}
-        if (i < size) {
+        if (i < array.length) {
             printf("Incorrect data in file: %s\n", filename);
             return -1;
         }
@@ -37,10 +37,10 @@ int fill_array(double* array, int size, const char* filename) {
     return 0;
 }
 
-void print_array(const double* array, int size) {
+void print_array(const struct Array array) {
     int i;
-    for (i = 0; i < MIN(size, PRINT_VALUE); i++) {
-        printf(" %f", array[i]);
+    for (i = 0; i < MIN(array.length, PRINT_VALUE); i++) {
+        printf(" %f", array.begin[i]);
     }
     putchar('\n');
 }
