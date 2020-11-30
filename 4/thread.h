@@ -8,11 +8,12 @@ struct Range {
 };
 
 struct Args {
+    int k;
     int p;
     double time;
-    struct Range* prev;
-    struct Range* current;
-    struct Range* next;
+    struct Args* prev;
+    struct Range range;
+    struct Args* next;
     int result;
 };
 

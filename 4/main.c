@@ -9,7 +9,7 @@ int main(int argc, const char* argv[]) {
     double fulltime;
     struct Args * a;
     pthread_t* tids;
-    struct Range* ranges;
+    // struct Range* ranges;
     if (!((argc == 3 || argc == 4) &&
         (sscanf(argv[1], "%d", &n) == 1) &&
         (sscanf(argv[2], "%d", &p) == 1) &&
@@ -23,27 +23,32 @@ int main(int argc, const char* argv[]) {
 
     array  = (double*)      malloc(n *sizeof(double));
     a      = (struct Args*) malloc(sizeof(struct Args) * p);
-    ranges = (struct Range*)malloc(sizeof(struct Range) * p);
+    // ranges = (struct Range*)malloc(sizeof(struct Range) * p);
     tids   = (pthread_t*)   malloc(sizeof(pthread_t) * p);
-    if (!array || !a || !tids || !ranges) {
-        free(array), free(a), free(tids), free(ranges);
+    if (!array || !a || !tids) {
+    // || !ranges) {
+        free(array), free(a), free(tids);
+        //  free(ranges);
         printf("Cannot allocate memory\n");
         return -1;
     }
 
     if (fill_array(array, n, (argc == 4 ? argv[3] : NULL)) < 0) {
-        free(array), free(a), free(tids), free(ranges);
+        free(array), free(a), free(tids);
+        // free(ranges);
         return -2;
     }
     printf("Original =");
     print_array(array, n);
 
     for (k = 0; k < p; k++) {
-        ranges[k].begin = array + k * length;
-        ranges[k].end   = array + ((k != p - 1) ? (k + 1) * length : n);
-        a[k].prev       = ranges + k - 1;
-        a[k].current    = ranges + k;
-        a[k].next       = ranges + k + 1;
+        // ranges[k].begin = array + k * length;
+        // ranges[k].end   = array + ((k != p - 1) ? (k + 1) * length : n);
+        a[k].prev        = a + k - 1;
+        a[k].range.begin = array + k * length;
+        a[k].range.end   = array + ((k != p - 1) ? (k + 1) * length : n);
+        a[k].next        = a + k + 1;
+        a[k].k      = k;
         a[k].p      = p;
         a[k].time   = 0.;
         a[k].result = 0;
@@ -76,6 +81,7 @@ int main(int argc, const char* argv[]) {
         printf("%d thread took %.4f\n", k + 1, a[k].time);
         printf("--------------------\n");
     }
-    free(array), free(a), free(tids), free(ranges);
+    free(array), free(a), free(tids);
+    // free(ranges);
     return 0;
 }
