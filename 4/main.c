@@ -13,7 +13,8 @@ int main(int argc, const char* argv[]) {
         (sscanf(argv[1], "%d", &main.length) == 1) &&
         (sscanf(argv[2], "%d", &p) == 1) &&
         main.length > 0 && p > 0)) {
-        printf("Usage: %s <n> <p> [filename]\n", argv[0]);
+        printf("Usage: %s <n> <p> [filename]\n"
+               "Requirments: n > 0, p > 0\n", argv[0]);
         return -1;
     }
     if (main.length < p)
@@ -65,13 +66,13 @@ int main(int argc, const char* argv[]) {
 
     printf("Result   =");
     print_array(main);
-    printf("Answer: %d\n", a[0].result);
-    printf("####################\n");
-    printf("Full time: %.4f\n", fulltime);
-    printf("--------------------\n");
+    printf("Answer: %d\n"
+           "####################\n"
+           "Full time: %.4f\n"
+           "--------------------\n", a[0].result, fulltime);
     for (k = 0; k < p; k++) {
-        printf("%d thread took %.4f\n", k + 1, a[k].time);
-        printf("--------------------\n");
+        printf("%d thread took %.4f\n"
+               "------------------\n", k + 1, a[k].time);
     }
     free(main.begin), free(a), free(tids);
     return 0;

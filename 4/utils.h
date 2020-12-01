@@ -1,4 +1,8 @@
 #pragma once
+#include <stdio.h>
+
+#define LOG_DBL(x) printf("%s: %f\n", #x, x)
+#define LOG_INT(x) printf("%s: %d\n", #x, x)
 
 struct Array {
     double* begin;

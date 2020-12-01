@@ -20,49 +20,104 @@ function assert {
 fi
 }
 
-function testResult {
-    local orig="              Original = 0.000000 1.000000 2.000000 3.000000 4.000000 0.000000"
-    local result="Result   = 0.000000 1.000000 2.000000 0.500000 4.000000 0.000000"
-    for ((i = 1; i <= 7; i++))
-    do
-        echo -n "./a.out 6 $i "
-        assert "$($prog 6 $i | grep Result)" "$result"
-        echo "$orig"
-    done    
+function testFile {
+    if [ $# -ne 4 ]
+    then
+        echo "Usage: <length> <expecting answer> <expecting result> <filename>"
+        echo "Your usage $#: "$@""
+    else 
+        for ((i = 1; i <= $1 ; i++))
+        do
+            echo "./a.out $1 $i $2"
+            assert "$($prog $1 $i $2 | grep Answer)" "$3"
+            assert "$($prog $1 $i $2 | grep Result)" "$4"
+        done
+    fi
 }
 
-function testAnswer {
+function testSmall {
+    echo "1 2 3 2 1 2 3 2 1 2" > sin
+    local result="Result   = 1.000000 2.000000 1.000000 2.000000 3.000000 2.000000 1.000000 2.000000 1.000000 2.000000"
+    local answer="Answer: 6"
+    testFile 10 sin "$answer" "$result"
+    rm sin
+
+    echo "0 1 10 1 0" > mount
+    local result="Result   = 0.000000 1.000000 0.000000 1.000000 0.000000"
+    local answer="Answer: 1"    
+    testFile 5 mount "$answer" "$result"
+    rm mount
+
+    echo "-1 1 -10 1 -1" > pit
+    local result="Result   = -1.000000 1.000000 -1.000000 1.000000 -1.000000"
+    local answer="Answer: 1"    
+    testFile 5 pit "$answer" "$result"
+    rm pit
+
+    echo "1" > one
+    local result="Result   = 1.000000"
+    local answer="Answer: 0"
+    testFile 1 one "$answer" "$result"
+    rm one
+
+    echo "2 2" > two
+    local result="Result   = 2.000000 2.000000"
+    local answer="Answer: 0"
+    testFile 2 two "$answer" "$result"
+    rm two
+
+    echo "3 3 3" > three
+    local result="Result   = 3.000000 3.000000 3.000000"
+    local answer="Answer: 0"
+    testFile 3 three "$answer" "$result"
+    rm three
+    
+    echo "4 4 4 4" > four
+    local result="Result   = 4.000000 4.000000 4.000000 4.000000"
+    local answer="Answer: 0"
+    testFile 4 four "$answer" "$result"
+    rm four
+
+    echo "1 1 -2 -2 1 1" > six
+    local result="Result   = 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000"
     local answer="Answer: 2"
-    for ((i = 1; i <= 7; i++))
+    testFile 6 six "$answer" "$result"
+    rm six
+
+    echo "1 1 -2 -2 1 1" > six
+    local result="Result   = 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000"
+    local answer="Answer: 2"
+    testFile 6 six "$answer" "$result"
+    rm six
+
+    touch empty
+    local result="Result   = 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000"
+    local answer="Answer: 2"
+    testFile 6 six "$answer" "$result"
+    rm six
+}
+
+function testMedium {
+    local answer="Answer: 96"
+    for ((i = 1; i <= 100; i++))
     do
-        echo -n "./a.out 6 $i "
-        assert "$($prog 6 $i | grep Answer)" "$answer"
+        echo "./a.out 100 $i"
+        assert "$($prog 100 $i | grep Answer)" "$answer"
     done
 }
 
-function testSwapCurrentToPrevPrevDividedBy2 {
-    local orig="              Original = 0.000000 1.000000 2.000000 3.000000 4.000000 5.000000 6.000000 7.000000 8.000000 9.000000"
-    local result="Result   = 0.000000 1.000000 0.000000 0.500000 1.000000 1.500000 2.000000 2.500000 3.000000 3.500000"
-    local answer="Answer: 8"
-    for ((i = 1; i <= 10; i++))
+function testBig {
+    local answer="Answer: 99999996"
+    for ((i = 1; i <= 20; i++))
     do
-        echo "./a.out 10 $i"
-        assert "$($prog 10 $i | grep Answer)" "$answer"
-        assert "$($prog 10 $i | grep Result)" "$result"
-        echo "$orig"
+        echo "./a.out 100000000 $i"
+        assert "$($prog 100000000 $i | grep Answer)" "$answer"
     done
 }
 
-for mytest in testSwapCurrentToPrevPrevDividedBy2
+for mytest in testSmall testMedium testBig 
 do 
     echo "=========================== $mytest ==========================="
     $mytest
     echo "Done!"
 done
-
-# for mytest in testAnswer testResult
-# do 
-#     echo "=========================== $mytest ==========================="
-#     $mytest
-#     echo "Done!"
-# done

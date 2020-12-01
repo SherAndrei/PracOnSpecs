@@ -1,20 +1,12 @@
 #include "thread.h"
 
-static void evaluate_left(double* prevprev, double *prev, double* current) {
+static void evaluate(double* prevprev, double *prev, double* current, double* nextnext) {
     double current_;
     current_  = *current;
-    *current  = *prevprev / 2;
+    *current  = (*prevprev + *nextnext) / 2;
     *prevprev = *prev;
     *prev     = current_;
 }
-
-// static void evaluate(double* prevprev, double *prev, double* current, double* nextnext) {
-//     double current_;
-//     current_  = *current;
-//     *current  = (*prevprev + *nextnext) / 2;
-//     *prevprev = *prev;
-//     *prev     = current_;
-// }
 
 void* thread_func(void* ptr) {
     double thread_time;
@@ -29,10 +21,10 @@ void* thread_func(void* ptr) {
     double* begin  = arg->array.begin;
     int length = arg->array.length;
     int other_length = 0;
-    double prevprev = 0.,
-           prev = 0.,
-           next = 0.,
-           nextnext = 0.;
+    double prevprev = -1.,
+           prev = -1.,
+           next = -1.,
+           nextnext = -1.;
     int k = arg->k;
     int p = arg->p;
     int i = 0;
@@ -54,6 +46,27 @@ void* thread_func(void* ptr) {
             if (k > 1)
                 prevprev = arg->prev->prev->array.begin[other_length - 1];
             prev     = arg->prev->array.begin[other_length - 1];
+        }
+    }
+    other_length = 0;
+    if (k != p - 1)
+        other_length = arg->next->array.length;
+    if (k < p - 2) {
+        if (length > 1) {
+            next     = *(arg->next->array.begin + 0);
+            nextnext = *(arg->next->array.begin + 1);
+        } else {
+            next     = *(arg->next->array.begin + 0);
+            if (other_length > 1) {
+                nextnext = *(arg->next->array.begin + 1);
+            } else {
+                nextnext = *(arg->next->next->array.begin);
+            }
+        }
+    } else if (k == p - 2) {
+        next     = *(arg->next->array.begin + 0);
+        if (other_length > 1) {
+            nextnext = *(arg->next->array.begin + 1);
         }
     }
 
@@ -79,18 +92,44 @@ void* thread_func(void* ptr) {
     pthread_mutex_unlock(&m);
     ////////////////////////////////////////////////
 
-    if (length != 1) {
+    if (length > 3) {
         i = (k != 0) ? 0 : 2;
-        for (; i < length; i++) {
-            evaluate_left(&prevprev, &prev, begin + i);
+        for (; i + 2 < length; i++) {
+            evaluate(&prevprev, &prev, begin + i, begin + i + 2);
+        }
+        if (k != p - 1) {
+            evaluate(&prevprev, &prev, begin + i + 0, &next);
+            evaluate(&prevprev, &prev, begin + i + 1, &nextnext);
+            i += 2;
         }
         i = (k != 0) ? i : i - 2;
+    } else if (length == 3) {
+        if (k == 0 && k != p - 1) {
+            evaluate(&prevprev, &prev, begin + 2, &nextnext);
+            i = 1;
+        } else if (k > 0) {
+            evaluate(&prevprev, &prev, begin + 0, begin + 2);
+            i = 1;
+            if (k != p - 1) {
+                evaluate(&prevprev, &prev, begin + 1, &next);
+                evaluate(&prevprev, &prev, begin + 2, &nextnext);
+                i += 2;
+            }
+        }
+    } else if (length == 2) {
+        if (k != 0 && k != p - 1) {
+            evaluate(&prevprev, &prev, begin + 0, &next);
+            evaluate(&prevprev, &prev, begin + 1, &nextnext);
+            i = 2;
+        }
     } else {
-        if (k > 1)
-            evaluate_left(&prevprev, &prev, begin + 0);
-        i = (k > 1);
+        if (k > 1 &&
+           (k < p - 2 || (k == p - 2 && other_length > 1))) {
+            evaluate(&prevprev, &prev, begin + 0, &nextnext);
+            i++;
+        }
     }
-    arg->result += i;
+    arg->result = i;
 
     ////////////////////////////////////////////////
     pthread_mutex_lock(&m);

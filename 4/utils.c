@@ -3,7 +3,9 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <stdlib.h>
 #include "utils.h"
+
 
 #define PRINT_VALUE 20
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
