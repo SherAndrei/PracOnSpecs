@@ -39,37 +39,23 @@ void* thread_func(void* ptr) {
         }
     } else {
         other_length = arg->prev->array.length;
+        prev         = arg->prev->array.begin[other_length - 1];
         if (length > 1) {
             prevprev = arg->prev->array.begin[other_length - 2];
-            prev     = arg->prev->array.begin[other_length - 1];
-        } else if (length == 1) {
-            if (k > 1)
-                prevprev = arg->prev->prev->array.begin[other_length - 1];
-            prev     = arg->prev->array.begin[other_length - 1];
+        } else if (k > 1) {
+            prevprev = arg->prev->prev->array.begin[other_length - 1];
         }
     }
     other_length = 0;
-    if (k != p - 1)
+    if (k != p - 1) {
         other_length = arg->next->array.length;
-    if (k < p - 2) {
-        if (length > 1) {
-            next     = *(arg->next->array.begin + 0);
+        next         = *(arg->next->array.begin + 0);
+        if (length > 1 || other_length > 1) {
             nextnext = *(arg->next->array.begin + 1);
-        } else {
-            next     = *(arg->next->array.begin + 0);
-            if (other_length > 1) {
-                nextnext = *(arg->next->array.begin + 1);
-            } else {
-                nextnext = *(arg->next->next->array.begin);
-            }
-        }
-    } else if (k == p - 2) {
-        next     = *(arg->next->array.begin + 0);
-        if (other_length > 1) {
-            nextnext = *(arg->next->array.begin + 1);
+        } else if (length == 1 && k != p - 2) {
+            nextnext = *(arg->next->next->array.begin);
         }
     }
-
     t_in++;
     if (t_in >= arg->p) {
         t_out = 0;

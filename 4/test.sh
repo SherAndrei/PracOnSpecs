@@ -28,8 +28,10 @@ function testFile {
     else 
         for ((i = 1; i <= $1 ; i++))
         do
-            echo "./a.out $1 $i $2"
+            echo "./a.out $1 $i $2: "
+            echo -n "Answer: "
             assert "$($prog $1 $i $2 | grep Answer)" "$3"
+            echo -n "Result: "
             assert "$($prog $1 $i $2 | grep Result)" "$4"
         done
     fi
@@ -84,24 +86,18 @@ function testSmall {
     testFile 6 six "$answer" "$result"
     rm six
 
-    echo "1 1 -2 -2 1 1" > six
-    local result="Result   = 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000"
-    local answer="Answer: 2"
-    testFile 6 six "$answer" "$result"
-    rm six
-
-    touch empty
-    local result="Result   = 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000"
-    local answer="Answer: 2"
-    testFile 6 six "$answer" "$result"
-    rm six
+    echo "1 1 -2 -2 -2 1 1" > seven
+    local result="Result   = 1.000000 1.000000 -0.500000 1.000000 -0.500000 1.000000 1.000000"
+    local answer="Answer: 3"
+    testFile 7 seven "$answer" "$result"
+    rm seven
 }
 
 function testMedium {
     local answer="Answer: 96"
     for ((i = 1; i <= 100; i++))
     do
-        echo "./a.out 100 $i"
+        echo -n "./a.out 100 $i: "
         assert "$($prog 100 $i | grep Answer)" "$answer"
     done
 }
@@ -110,7 +106,7 @@ function testBig {
     local answer="Answer: 99999996"
     for ((i = 1; i <= 20; i++))
     do
-        echo "./a.out 100000000 $i"
+        echo -n "./a.out 100000000 $i: "
         assert "$($prog 100000000 $i | grep Answer)" "$answer"
     done
 }

@@ -15,3 +15,5 @@ void print_array(const struct Array array);
 
 double get_time();
 double get_full_time();
+
+

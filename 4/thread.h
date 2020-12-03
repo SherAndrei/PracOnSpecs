@@ -7,10 +7,6 @@ struct Args {
     int p;
     double time;
     struct Args* prev;
-    double prevprev_;
-    double prev_;
-    double next_;
-    double nextnext_;
     struct Array array;
     struct Args* next;
     int result;
